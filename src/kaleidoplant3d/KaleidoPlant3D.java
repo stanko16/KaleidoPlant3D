@@ -8,8 +8,8 @@ import processing.core.PApplet;
 
 public class KaleidoPlant3D extends PApplet {
 	
-	private float theta,gamma = radians(5*PI);
-	private int n,lastOneWas= 0;
+	private float gamma = radians(5*PI);
+	private int n;
 	private String s;
 	private BufferedReader reader;
 	private PeasyCam camera;
@@ -26,24 +26,34 @@ public class KaleidoPlant3D extends PApplet {
 	public void actionPerformed(ActionEvent evt) {
 
 }
-	
+	/**
+	 * Method to set up some initial values. Default Processing method.
+	 */
 	public void setup() {
 	  size(displayWidth-100, displayHeight*100, P3D);
 	  KaleidoPlant3D.width=displayWidth-100;
 	  camera = new PeasyCam(this, 500);
 	  camera.lookAt(250, 360, 0);
 	  camera.rotateZ(0.99483*90f);
-	  m = new Menu();m.setVisible(true);
+	  m = new Menu();
+	  m.setVisible(true);
 	  n=5;
 	  camera.setResetOnDoubleClick(false);
 	}
 	
+	/**
+	 * Iteration method
+	 */
 	public void draw() {
-		  background(background);
+		  background(background);//Color the background 
 		  
+		  //reading the rules
 		  reader = createReader(path); 
-		  try {s=reader.readLine();}
-		  catch(Exception E) {print("FILE NOT FOUND");}
+		  try {
+			  s=reader.readLine();
+			  }catch(Exception E) {
+			  print("FILE NOT FOUND");
+			  }
 
 		  //Preparing ambient
 		  strokeWeight(2);
@@ -51,47 +61,49 @@ public class KaleidoPlant3D extends PApplet {
 		  stroke(red,green,blue,100);
 
 		  //Setting the angle of mobility
-		  //a = (float) ((((mouseY) / ((float) width*0.263)))* 90f);
 		  gamma = radians(a);
 
 		  //Setting starting position and line
 		  translate(0, height/2);
 
 		  //running the algorithm
-
 		  read();
 
 		}
 
-	
+	/**
+	 * Method that reads the source/rule file and parses it.
+	 */
 	public void read() {
 
-	  for (int i = 0; i < s.length(); i++) {
+	  for (int i = 0; i < s.length(); i++) {//Reading the rule
 	    char c = s.charAt(i);
+	    //Depending on the character read:
+	    //- Change direction
 	    if (c=='-') {
 	      direction(1);
-	      lastOneWas=1;
 	    }
 	    else if (c=='+') {
 	      direction(2);
-	      lastOneWas=2;
 	    }
 	    else if (c=='*') {
 	      direction(3);
-	      lastOneWas=3;
 	    }
 	    else if (c=='%') {
 	      direction(4);
-	      lastOneWas=4;
 	    }
+	    //- Draw line
 	    else if (c=='f') {
 	      drowline();
 	    }
+	    //- Close branch and return to the previous angle
 	    else if (c==']') {
 	      translate(-n, 0);
 	      try{
-	      popMatrix();}catch(Exception e){}
+	    	  popMatrix();
+	    	  }catch(Exception e){}
 	    }
+	    //- Open branch
 	    else if (c=='[') {
 	      pushMatrix();
 	    }
@@ -101,7 +113,10 @@ public class KaleidoPlant3D extends PApplet {
 	  s="";
 	}
 
-
+/**
+ * Changes the angle based on the number inserted. Number must be 1<=n<=4.
+ * @param n Direction of the angle
+ */
 	public void direction(int n) {
 
 	  if (n==1) {
@@ -118,6 +133,10 @@ public class KaleidoPlant3D extends PApplet {
 	  }
 	}
 
+	/**
+	 * Method that draws the line and translates the matrix to the ending point
+	 * of the line (to start from there a new line).
+	 */
 	public void drowline() {   
 	  
 	  line(0, 0, n, 0); 
